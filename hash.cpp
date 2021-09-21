@@ -6,6 +6,7 @@
 hashTable::hashTable(int size) : capacity{(int)getPrime(size)}, filled{0}
 {
     this->data.resize(this->capacity);
+    std::cout << this->capacity << std::endl;
 }
 
 unsigned int hashTable::getPrime(int size)
@@ -20,11 +21,8 @@ int hashTable::insert(const std::string &key, void *pv)
 {
     double load_factor;
     int index = this->hash(key);
-    if (this->contains(key))
-        return 1; // key exists in hash table
-    for (index %= this->capacity; (this->data)[index].isOccupied; index++)
-    {
-    }
+    if (this->contains(key))    return 1; // key exists in hash table
+    for (index %= this->capacity; (this->data)[index].isOccupied; index++){}
     this->filled++;
     this->data[index].key = key;
     this->data[index].isOccupied = true;
@@ -45,27 +43,33 @@ int hashTable::insert(const std::string &key, void *pv)
 int hashTable::hash(const std::string &key)
 {
     unsigned long hash = 5381;
-    for (int c : key)
-        hash = ((hash << 5) + hash) + c;
+    for (int c : key)   hash = ((hash << 5) + hash) + c;
 
     return (hash % this->capacity);
 }
 
 bool hashTable::rehash()
 {
-    this->capacity = 2 * (this->data.size());
-    std::vector<hashItem> old_table = this->data;
-    this->data.clear();
-    this->data.resize(getPrime(capacity));
-    for (hashItem entry : old_table)
+    try
     {
-        if (entry.key == "")
-            continue;
-        this->insert(entry.key);
+        this->capacity = 2 * (this->data.size());
+        std::vector<hashItem> old_table = this->data;
+        this->data.clear();
+        this->data.resize(getPrime(capacity));
+        for (hashItem entry : old_table)
+        {
+            if (entry.isOccupied == true)
+                continue;
+            this->insert(entry.key);
+        }
+        // https://stackoverflow.com/questions/10464992/c-delete-vector-objects-free-memory
+        std::vector<hashItem>().swap(old_table);
+        return true;
     }
-    // https://stackoverflow.com/questions/10464992/c-delete-vector-objects-free-memory
-    std::vector<hashItem>().swap(old_table);
-    return true;
+    catch(std::bad_alloc)
+    {
+        return false;
+    }
 }
 
 bool hashTable::contains(const std::string &key)
@@ -77,7 +81,6 @@ bool hashTable::contains(const std::string &key)
 
 int hashTable::findPos(const std::string &key)
 {
-    auto itr = std::find_if(this->data.cbegin(), this->data.cend(), [&](hashItem i)
-                            { return (i.key == key); });
+    auto itr = std::find_if(this->data.cbegin(), this->data.cend(), [&](hashItem i){ return (i.key == key); });
     return (itr != this->data.cend()) ? std::distance(this->data.cbegin(), itr) : -1;
 }
