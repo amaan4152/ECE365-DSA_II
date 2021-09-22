@@ -75,15 +75,23 @@ void input_process(std::vector<std::string> in_data, std::string out_f, hashTabl
             for(int i = 0; i < line.size(); ++i)
             {
                 char c = line[i];
-                if(!(isalnum(c) || c == '-' || c == '\'')) 
+                if(isalnum(c) || c == '-' || c == '\'')
                 {
+                    word += c;
+                    //continue;
+                }
+                else
+                {
+                    if(word.size() == 0)    continue;
+                    std::cout << "WORD : " << word << std::endl;
                     spellcheck(o_file, table, word, line_num);
                     word.clear();
-                    continue;
                 }
-                word += c;
+                
                 if(i == (line.size() - 1))
                 {
+                    if(word.size() == 0)    continue;
+                    std::cout << "WORD : " << word << std::endl;
                     spellcheck(o_file, table, word, line_num);
                     word.clear();
                 }
@@ -99,7 +107,7 @@ void spellcheck(std::ofstream &out_f, hashTable *table, std::string word, int li
     if(word.size() > 20)    out_f << "Long word at line " << line_num << ", starts: " << word.substr(0,20) << std::endl;
     else    
         if(!table->contains(word))
-            out_f << "Unkown word at line " << line_num << ": " << word << std::endl;
+            out_f << "Unknown word at line " << line_num << ": " << word << std::endl;
 }
 
 bool isValid(std::string word)
