@@ -8,7 +8,9 @@
 enum TYPE {DICT, DOC};
 
 std::vector<std::string> getStrings(std::string); // convert file into list of strings delimited by '\n'
-std::pair<int, std::vector<char> *> isValid(const std::string &, int); // given dataset type (dictionary or input document), check if word is valid to not ignore
+void spellcheck(std::ofstream &, hashTable *, std::string word, int);
+void input_process(std::vector<std::string>, std::string, hashTable *);
+bool isValid(std::string);
 
 int main()
 {
@@ -21,12 +23,12 @@ int main()
     std::clock_t start = std::clock();
     for (std::string dict_word : dict)
     {
-        if((isValid(dict_word, DICT)).first == -1)    continue; // skip invalid words
+        if(!isValid(dict_word) || dict_word.size() > 20)  continue; 
         if (h_table->insert(dict_word) == 2)
             exit(EXIT_FAILURE);
     }
     std::clock_t end = std::clock();
-    std::cout << "Total time (in seconds) to load dictionary: " << (start - end) << std::endl;
+    std::cout << "Total time (in seconds) to load dictionary: " << (float)((end - start)/CLOCKS_PER_SEC) << std::endl;
 
     std::cout << "Enter name of input file: ";
     std::cin >> in_file;
@@ -34,19 +36,7 @@ int main()
     std::cin >> out_file;
 
     std::vector<std::string> input = getStrings(in_file);
-
-    for(std::string line : input)
-    {
-        std::string segment;
-        std::stringstream ss(line);
-        std::vector<std::string> tokens;
-        while(std::getline(ss, segment, ' '))
-        {
-            std::string word; 
-            std::vector<char> *delims = isValid(segment, DOC).second;
-            
-        }
-    }
+    input_process(input, out_file, h_table);
 
     delete h_table;
 }
@@ -66,20 +56,53 @@ std::vector<std::string> getStrings(std::string filename)
     return str_list;
 }
 
-
-
-std::pair<int, std::vector<char> *> isValid(const std::string &word, int type)
+void input_process(std::vector<std::string> in_data, std::string out_f, hashTable *table)
 {
-    std::pair<int, std::vector<char> *> res0(0, nullptr), res1(-1, nullptr);
-    std::vector<char> *delims;
-    for(int c = 0; c < word.size(); ++c)
+    int line_num = 1;
+    std::string word = "";
+    std::ofstream o_file(out_f, std::ios::binary);
+    for (std::string line : in_data)
     {
-        if(!(std::isdigit(word[c]) || std::isalpha(word[c]) || word[c] == '-' || word[c] == '\''))
-        {   
-            if(type == DICT)    return res1;
-            else    delims->push_back(word[c]);
+        if(line == "" && (++line_num))  continue;
+        if(isValid(line))   spellcheck(o_file, table, line, line_num);
+        else
+        {
+            for(int i = 0; i < line.size(); ++i)
+            {
+                char c = line[i];
+                if(!(isalnum(c) || c == '-' || c == '\'')) 
+                {
+                    spellcheck(o_file, table, word, line_num);
+                    word.clear();
+                    continue;
+                }
+                word += c;
+                if(i == (line.size() - 1))
+                {
+                    spellcheck(o_file, table, word, line_num);
+                    word.clear();
+                }
+            }
         }
+        ++line_num;
     }
-    if(type == DOC) res0 = std::make_pair(1, delims);
-    return res0;
+    o_file.close();
+}
+
+void spellcheck(std::ofstream &out_f, hashTable *table, std::string word, int line_num)
+{
+    if(word.size() > 20)    out_f << "Long word at line " << line_num << ", starts: " << word.substr(0,20) << std::endl;
+    else    
+        if(!table->contains(word))
+            out_f << "Unkown word at line " << line_num << ": " << word << std::endl;
+}
+
+bool isValid(std::string word)
+{
+    for(char c : word)
+    {
+        if(isalnum(c) || c == '-' || c == '\'')    continue;
+        return false; 
+    }
+    return true;
 }

@@ -1,33 +1,47 @@
 #include "hash.h"
 #include <valarray>
 #include <iostream>
+#include <ctime>
 #define LOAD_LIMIT 0.75
 
 hashTable::hashTable(int size) : capacity{(int)getPrime(size)}, filled{0}
 {
     this->data.resize(this->capacity);
-    std::cout << this->capacity << std::endl;
 }
 
 unsigned int hashTable::getPrime(int size)
 {
-    std::valarray<int> optimal_primes{53, 97, 193, 389, 769, 1543, 3079, 6151, 12289, 24593, 49157, 98317, 196613, 393241, 786433, 1572869, 3145739, 6291469, 12582917};
-    optimal_primes[optimal_primes < size] = 0;
-    std::valarray<int> shifted_primes = optimal_primes.shift(std::count(std::begin(optimal_primes), std::end(optimal_primes), 0));
-    return shifted_primes[0];
+    int next_prime = 0;
+    std::vector<int> optimal_primes{53, 97, 193, 389, 769, 1543, 3079, 6151, 12289, 24593, 49157, 98317, 196613, 393241, 786433, 1572869, 3145739, 6291469, 12582917};
+    for (int prime : optimal_primes)
+    {
+        if (prime > size)
+        {
+            next_prime = prime;
+            break;
+        }
+    }
+    return next_prime;
 }
 
 int hashTable::insert(const std::string &key, void *pv)
 {
     double load_factor;
-    int index = this->hash(key);
     if (this->contains(key))    return 1; // key exists in hash table
-    for (index %= this->capacity; (this->data)[index].isOccupied; index++){}
+    int index = this->hash(key);
+
+    // linear probe
+    while((this->data)[index].isOccupied)
+        (++index) %= this->capacity;
+
+    // fill entry 
     this->filled++;
     this->data[index].key = key;
     this->data[index].isOccupied = true;
     this->data[index].isDeleted = false;
     this->data[index].pv = pv;
+
+    // rehash once load factor reached limit or greater
     if ((load_factor = filled / capacity) >= LOAD_LIMIT)
     {
         if (!this->rehash())
@@ -52,16 +66,20 @@ bool hashTable::rehash()
 {
     try
     {
+        // update the capacity and preserve the old hashtable
         this->capacity = 2 * (this->data.size());
         std::vector<hashItem> old_table = this->data;
         this->data.clear();
         this->data.resize(getPrime(capacity));
+
+        // fill up the new table
         for (hashItem entry : old_table)
         {
-            if (entry.isOccupied == true)
+            if (entry.isOccupied == false)
                 continue;
             this->insert(entry.key);
         }
+
         // https://stackoverflow.com/questions/10464992/c-delete-vector-objects-free-memory
         std::vector<hashItem>().swap(old_table);
         return true;
@@ -74,13 +92,20 @@ bool hashTable::rehash()
 
 bool hashTable::contains(const std::string &key)
 {
-    if (this->findPos(key) != -1)
-        return true;
+    if (this->findPos(key) != -1)   return true;
     return false;
 }
 
 int hashTable::findPos(const std::string &key)
 {
-    auto itr = std::find_if(this->data.cbegin(), this->data.cend(), [&](hashItem i){ return (i.key == key); });
-    return (itr != this->data.cend()) ? std::distance(this->data.cbegin(), itr) : -1;
+    int index = -1;
+    std::clock_t start = std::clock();
+    // iterate through the hashtable and look for the first occurence of an entry that contains "key"
+    for (int i = 0; i < this->data.size(); ++i)
+    {
+        if(this->data[i].key == key && (index = i))
+            break;
+    }
+    std::clock_t end = std::clock();
+    return index;
 }
