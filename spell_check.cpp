@@ -20,6 +20,7 @@ int main()
 
     std::vector<std::string> dict = getStrings(dict_file);
     hashTable *h_table = new hashTable(dict.size());
+
     std::clock_t start = std::clock();
     for (std::string dict_word : dict)
     {
@@ -28,7 +29,7 @@ int main()
             exit(EXIT_FAILURE);
     }
     std::clock_t end = std::clock();
-    std::cout << "Total time (in seconds) to load dictionary: " << (float)((end - start)/CLOCKS_PER_SEC) << std::endl;
+    std::cout << "Total time (in seconds) to load dictionary: " << (float)((end - start)/(float)CLOCKS_PER_SEC) << std::endl;
 
     std::cout << "Enter name of input file: ";
     std::cin >> in_file;
@@ -36,7 +37,11 @@ int main()
     std::cin >> out_file;
 
     std::vector<std::string> input = getStrings(in_file);
+
+    std::clock_t time_start = std::clock();
     input_process(input, out_file, h_table);
+    std::clock_t time_end = std::clock();
+    std::cout << "Total time (in seconds) to check document: " << (float)((time_end - time_start)/(float)CLOCKS_PER_SEC) << std::endl;
 
     delete h_table;
 }
