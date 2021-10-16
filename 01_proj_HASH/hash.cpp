@@ -2,7 +2,7 @@
 #include <valarray>
 #include <iostream>
 #include <ctime>
-#define LOAD_LIMIT 0.75
+#define LOAD_LIMIT 0.45
 
 hashTable::hashTable(int size) : capacity{(int)getPrime(size)}, filled{0}
 {
@@ -56,9 +56,9 @@ int hashTable::insert(const std::string &key, void *pv)
 // http://www.cse.yorku.ca/~oz/hash.html
 int hashTable::hash(const std::string &key)
 {
-    unsigned long hash = 5381;
-    for (int c : key)   hash = ((hash << 5) + hash) + c;
-
+    size_t hash = 1315423911;
+    for(std::size_t i = 0; i < key.length(); ++i)
+        hash ^= ((hash << 5) + key[i] + (hash >>2));
     return (hash % this->capacity);
 }
 
@@ -98,14 +98,12 @@ bool hashTable::contains(const std::string &key)
 
 int hashTable::findPos(const std::string &key)
 {
-    int index = -1;
-    std::clock_t start = std::clock();
-    // iterate through the hashtable and look for the first occurence of an entry that contains "key"
-    for (int i = 0; i < this->data.size(); ++i)
+    unsigned int index = this->hash(key);
+    while(this->data[index].isOccupied)
     {
-        if(this->data[i].key == key && (index = i))
-            break;
+        if(this->data[index].key == key)
+            return index;
+        (++index) %= this->capacity;
     }
-    std::clock_t end = std::clock();
-    return index;
+    return -1;
 }
