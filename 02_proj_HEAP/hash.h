@@ -6,7 +6,6 @@
 
 class hashTable
 {
-
 public:
     int count;
     // The constructor initializes the hash table.
@@ -31,17 +30,17 @@ public:
     // If an optional pointer to a bool is provided,
     // set the bool to true if the key is in the hash table,
     // and set the bool to false otherwise.
-    // void *getPointer(const std::string &key, bool *b = nullptr);
+    void *getPointer(const std::string &key, bool *b = nullptr);
 
     // Set the pointer associated with the specified key.
     // Returns 0 on success,
     // 1 if the key does not exist in the hash table.
-    // int setPointer(const std::string &key, void *pv);
+    int setPointer(const std::string &key, void *pv);
 
     // Delete the item with the specified key.
     // Returns true on success,
     // false if the specified key is not in the hash table.
-    // bool remove(const std::string &key);
+    bool remove(const std::string &key);
 
 private:
     // Each item in the hash table contains:

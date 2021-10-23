@@ -1,8 +1,9 @@
-#ifndef __HEAP_H
-#define __HEAP_H
+#ifndef HEAP_H
+#define HEAP_H
 
-#include <vector>
 #include <string>
+#include <vector>
+#include "hash.h"
 
 class heap
 {
@@ -69,16 +70,24 @@ public:
     int remove(const std::string &id, int *pKey = nullptr, void *ppData = nullptr);
 
 private:
-    class heapItem:
+    class heapNode
     {
     public:
-        std::string key{""};
-        bool isHole{false};
+        std::string id{""};
+        int key{0};
         void *pv{nullptr};
 
-        heapItem() = default;
+        heapNode() = default;
     };
+    
+    std::vector<heapNode> bin_heap; 
+    hashTable heapMap; 
     int capacity;
+    int currentSize;
+
+    void percolateUp(int hole);
+    void percolateDown(int hole);
+    int getPos(heapNode *pn);
 };
 
 #endif
