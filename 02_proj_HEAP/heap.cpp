@@ -97,7 +97,7 @@ int heap::remove(const std::string &id, int *pKey, void *ppData)
 
 void heap::percolateUp(int hole)
 {
-    for (; this->bin_heap[hole].key < this->bin_heap[hole / 2].key; hole /= 2)
+    for (; this->bin_heap[0].key < this->bin_heap[hole / 2].key; hole /= 2)
     {
         this->bin_heap[hole] = this->bin_heap[hole / 2];
         this->heapMap.setPointer(this->bin_heap[hole].id, &this->bin_heap[hole]);

@@ -13,8 +13,10 @@ unsigned int hashTable::getPrime(int size)
 {
     int next_prime = 0;
     std::vector<int> optimal_primes{53, 97, 193, 389, 769, 1543, 3079, 6151, 12289, 24593, 49157, 98317, 196613, 393241, 786433, 1572869, 3145739, 6291469, 12582917};
-    for (int prime : optimal_primes){
-        if (prime > size){
+    for (int prime : optimal_primes)
+    {
+        if (prime > size)
+        {
             next_prime = prime;
             break;
         }
@@ -41,8 +43,10 @@ int hashTable::insert(const std::string &key, void *pv)
     this->data[index].pv = pv;
 
     // rehash once load factor reached limit or greater
-    if ((load_factor = filled / capacity) >= LOAD_LIMIT){
-        if (!this->rehash()){
+    if ((load_factor = filled / capacity) >= LOAD_LIMIT)
+    {
+        if (!this->rehash())
+        {
             std::cerr << "[FATAL]: Memory allocation for <REHASHING> failed" << std::endl;
             return 2;
         }
@@ -61,7 +65,8 @@ int hashTable::hash(const std::string &key)
 
 bool hashTable::rehash()
 {
-    try{
+    try
+    {
         // update the capacity and preserve the old hashtable
         this->capacity = 2 * (this->data.size());
         std::vector<hashItem> old_table = this->data;
@@ -69,24 +74,27 @@ bool hashTable::rehash()
         this->data.resize(getPrime(capacity));
 
         // fill up the new table
-        for (hashItem entry : old_table){
+        for (hashItem entry : old_table)
+        {
             if (entry.isOccupied == false)
                 continue;
-            this->insert(entry.key);
+            this->insert(entry.key, entry.pv);
         }
 
         // https://stackoverflow.com/questions/10464992/c-delete-vector-objects-free-memory
         std::vector<hashItem>().swap(old_table);
         return true;
     }
-    catch (std::bad_alloc){
+    catch (std::bad_alloc)
+    {
         return false;
     }
 }
 
 bool hashTable::contains(const std::string &key)
 {
-    if (this->findPos(key) != -1)   return true;
+    if (this->findPos(key) != -1)
+        return true;
 
     return false;
 }
@@ -94,8 +102,10 @@ bool hashTable::contains(const std::string &key)
 int hashTable::findPos(const std::string &key)
 {
     unsigned int index = this->hash(key);
-    while (this->data[index].isOccupied){
-        if (this->data[index].key == key)   return index;
+    while (this->data[index].isOccupied && !this->data[index].isDeleted)
+    {
+        if (this->data[index].key == key)
+            return index;
         (++index) %= this->capacity;
     }
 
@@ -105,11 +115,14 @@ int hashTable::findPos(const std::string &key)
 void *hashTable::getPointer(const std::string &key, bool *b)
 {
     int index = this->findPos(key);
-    if (index == -1){
-        *b = false;
+    if (index == -1)
+    {
+        if (b)
+            *b = false;
         return nullptr;
     }
-    *b = true;
+    if (b)
+        *b = true;
 
     return this->data[index].pv;
 }
@@ -117,20 +130,23 @@ void *hashTable::getPointer(const std::string &key, bool *b)
 int hashTable::setPointer(const std::string &key, void *pv)
 {
     int index = this->findPos(key);
-    if(index == -1)     return 1;
+    if (index == -1)
+        return 1;
 
     this->data[index].pv = pv;
 
-    return 0;    
+    return 0;
 }
 
 bool hashTable::remove(const std::string &key)
 {
     int index = this->findPos(key);
-    if(index == -1)     return false;
+    if (index == -1)
+        return false;
 
+    // lazy deletion
     this->data[index].key = "";
-    this->data[index].isOccupied = false;
+    this->data[index].isOccupied = true;
     this->data[index].isDeleted = true;
     this->data[index].pv = nullptr;
 
