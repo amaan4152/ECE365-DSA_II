@@ -26,7 +26,6 @@ unsigned int hashTable::getPrime(int size)
 
 int hashTable::insert(const std::string &key, void *pv)
 {
-    double load_factor;
     if (this->contains(key))
         return 1; // key exists in hash table
     int index = this->hash(key);
@@ -43,7 +42,7 @@ int hashTable::insert(const std::string &key, void *pv)
     this->data[index].pv = pv;
 
     // rehash once load factor reached limit or greater
-    if ((load_factor = filled / capacity) >= LOAD_LIMIT)
+    if ((filled / capacity) >= LOAD_LIMIT)
     {
         if (!this->rehash())
         {
@@ -76,7 +75,7 @@ bool hashTable::rehash()
         // fill up the new table
         for (hashItem entry : old_table)
         {
-            if (entry.isOccupied == false)
+            if (entry.isOccupied == false || entry.isDeleted == true)
                 continue;
             this->insert(entry.key, entry.pv);
         }
@@ -102,9 +101,9 @@ bool hashTable::contains(const std::string &key)
 int hashTable::findPos(const std::string &key)
 {
     unsigned int index = this->hash(key);
-    while (this->data[index].isOccupied && !this->data[index].isDeleted)
+    while (this->data[index].isOccupied)
     {
-        if (this->data[index].key == key)
+        if (this->data[index].key == key && !this->data[index].isDeleted)
             return index;
         (++index) %= this->capacity;
     }
@@ -145,7 +144,7 @@ bool hashTable::remove(const std::string &key)
         return false;
 
     // lazy deletion
-    this->data[index].key = "";
+    this->data[index].key = ""; // non-standard approach; not necessary
     this->data[index].isOccupied = true;
     this->data[index].isDeleted = true;
     this->data[index].pv = nullptr;
