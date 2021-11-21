@@ -79,9 +79,9 @@ private:
 
         heapNode() = default;
     };
-    
-    std::vector<heapNode> bin_heap; 
-    hashTable heapMap; 
+
+    std::vector<heapNode> bin_heap;
+    hashTable heapMap;
     int capacity;
     int currentSize;
 

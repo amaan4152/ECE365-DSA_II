@@ -11,8 +11,9 @@ from networkx.generators.random_graphs import erdos_renyi_graph
 from numpy import log
 from random import randint, choices
 
-START = 10
-END = 100
+# change these hyperparameters as you wish :)
+START = 10  # min number of possible verticies
+END = 100   # max number of possible verticies
 
 '''
     Utilize Erdos Renyi algorithm to generate random graphs. 
@@ -39,6 +40,7 @@ def applyWeights(G, filename):
     with open(filename, 'w') as f:
         for e, w in zip(G.edges(), weights):
             G[e[0]][e[1]]['weights'] = w
+            # add 1 to ensure a vertex id number is always > 1
             row_str = f'v{e[0] + 1} v{e[1] + 1} {w}\n'
             f.write(row_str)
 
@@ -48,7 +50,7 @@ def main():
     while(True):
         G = makeGraph()
         if(nx.is_connected(G)):
-            print('[status: SUCESS]: Graph is connected!')
+            print('[status: SUCCESS]: Graph is connected!')
             break
         print('[status: FAILED]: Graph not connected! Retrying...')
 

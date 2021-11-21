@@ -1,4 +1,4 @@
-// 
+//
 // This program allows the user to manipulate a binary heap.
 // The program only inserts string ids with with associated keys
 // into the heap. The heap class, however, is capable of storing
@@ -19,18 +19,21 @@ using namespace std;
 void getInteger(string message, int &ref)
 {
   bool inputGood = false;
-  while (!inputGood) {
+  while (!inputGood)
+  {
     inputGood = true;
 
     cout << message;
     cin >> ref;
 
-    if (!cin) {
+    if (!cin)
+    {
       // Non-integer in input buffer, get out of "fail" state
       cin.clear();
       inputGood = false;
     }
-    while (cin.get() != '\n'); // clear buffer
+    while (cin.get() != '\n')
+      ; // clear buffer
   }
 }
 
@@ -48,7 +51,8 @@ int main()
   // Create the heap
   heap myHeap1(capacity);
 
-  while (1) {
+  while (1)
+  {
     cout << "\nOptions:\n";
     cout << "1 - Insert a new item into the binary heap\n";
     cout << "2 - Set the key of a specified item\n";
@@ -58,7 +62,8 @@ int main()
 
     // Have the user choose an option
     getInteger("Choose an option: ", option);
-    switch(option) {
+    switch (option)
+    {
 
     case 1:
       // Get data to insert into heap from the user and insert it
@@ -96,9 +101,10 @@ int main()
       retVal = myHeap1.remove(stringTmp, &key);
       cout << "\nCall to 'delete' returned: " << retVal << "\n";
 
-      if (retVal == 0) {
-	cout << "\nDeleted item with string id \"" << stringTmp
-	     << "\" and key " << key << "\n";
+      if (retVal == 0)
+      {
+        cout << "\nDeleted item with string id \"" << stringTmp
+             << "\" and key " << key << "\n";
       }
 
       break;
@@ -109,9 +115,10 @@ int main()
       retVal = myHeap1.deleteMin(&stringTmp, &key);
       cout << "\nCall to 'deleteMin' returned: " << retVal << "\n";
 
-      if (retVal == 0) {
-	cout << "\nDeleted item with string id \"" << stringTmp
-	     << "\" and key " << key << "\n";
+      if (retVal == 0)
+      {
+        cout << "\nDeleted item with string id \"" << stringTmp
+             << "\" and key " << key << "\n";
       }
 
       break;
@@ -122,10 +129,10 @@ int main()
 
     default:
       cerr << "Error, that input is not valid!\n";
-      exit (1);
+      exit(1);
     }
   }
 
   cerr << "Error, we should never get here!\n";
-  exit (1);
+  exit(1);
 }
