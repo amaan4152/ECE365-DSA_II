@@ -1,33 +1,25 @@
-compile: main.o graph.o heap.o hash.o
-	g++ -o djikstra main.o graph.o heap.o hash.o
-
-clang: main.o graph.o heap.o hash.o
-	clang++ -std=c++11 -fsanitize=address -Wextra \
-	-Wpedantic main.o graph.o heap.o hash.o \
-	-o djikstra -Weverything -Wall
+CXX = g++
+CXXFLAGS = -fsanitize=address -Wextra -Wpedantic -Wall
+all: main.o graph.o heap.o hash.o
+	$(CXX) -o *.o $(CXXFLAGS)
 
 main.o: main.cpp graph.h
-	g++ -std=c++11 -c main.cpp
+	$(CXX) -std=c++11 -c main.cpp $(CXXFLAGS)
 
 graph.o: graph.cpp graph.h
-	g++ -std=c++11 -c graph.cpp
+	$(CXX) -std=c++11 -c graph.cpp $(CXXFLAGS)
 
 heap.o: heap.cpp heap.h
-	g++ -std=c++11 -c heap.cpp
+	$(CXX) -std=c++11 -c heap.cpp $(CXXFLAGS)
 
 hash.o: hash.cpp hash.h
-	g++ -std=c++11 -c hash.cpp
+	$(CXX) -std=c++11 -c hash.cpp $(CXXFLAGS)
 
 graph: 
 	python3 makeGraph.py
 
 debug: main.o graph.o heap.o hash.o
-	g++ -g -o DEBUG_djikstra main.cpp graph.cpp heap.cpp hash.cpp
-
-clang_debug: main.o graph.o heap.o hash.o
-	clang++ -std=c++11 -fsanitize=address -Wextra \
-	-Wpedantic -o DEBUG_djikstra main.cpp graph.cpp heap.cpp hash.cpp \
-	-Weverything -Wall -g
+	$(CXX) -o DEBUG_djikstra *cpp $(CXXFLAGS)
 
 clean: 
 	rm -f *.o *.gch DEBUG_djikstra

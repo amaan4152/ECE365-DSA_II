@@ -23,16 +23,17 @@ int main(void)
     Graph *G = loadGraph(contents);
     // === PRINT GRAPH ADJACENCY LISTS TO FILE ===
     G->printGraph("graph_adjLists.txt");
-
-    std::cout << "Enter name of starting vertex: ";
-    std::cin >> startID;
     while (G->Djikstra(startID))
     {
         std::cerr << "Enter name of starting vertex: ";
         std::cin >> startID;
     }
+    
     std::cerr << "Enter name of output file: ";
     std::cin >> outname;
+    std::ofstream outfile(outname);
+    G->printDjikstra(outfile, startID, 0);
+    delete G;
     return 0;
 }
 

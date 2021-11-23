@@ -8,80 +8,28 @@ Graph::Graph(int capacity) : vertexSet(capacity),
 {
 }
 
-int Graph::addEdge(std::string &src_id, std::string &dest_id, int weight)
+Graph::Vertex *Graph::addVertex(std::string id)
 {
-    Vertex *src, *dest;
-
-    // check if graph verticies exist in graph (via hash table)
-    if (!(src = static_cast<Vertex *>(this->graphTable.getPointer(src_id))))
+    bool found = false;
+    Vertex *v = static_cast<Vertex *>(this->graphTable.getPointer(id, &found));
+    if (!found)
     {
-        src = new Vertex();
-        src->id = src_id;
-        this->graphTable.insert(src_id, src);
-        this->vertex_ids.push_back(src_id);
+        v = new Vertex();
+        v->id = id;
+        this->graphTable.insert(id, v);
+        this->vertex_ids.push_back(id);
     }
-    if (!(dest = static_cast<Vertex *>(this->graphTable.getPointer(dest_id))))
-    {
-        dest = new Vertex();
-        dest->id = dest_id;
-        this->graphTable.insert(dest_id, dest);
-        this->vertex_ids.push_back(dest_id);
-    }
-
-    // create edge
-    Vertex edgeNode;
-    edgeNode.id = dest_id;
-    edgeNode.weight = weight;
-    if (src)
-    {
-        // append adjacency list with new edge
-        src->adjList.push_back(edgeNode);
-        return 0;
-    }
-    // create new source vertex and add to graph
-    src->adjList.push_back(edgeNode);
-
-    return 0;
+    return v;
 }
 
-int Graph::Djikstra(std::string &start_id)
+int Graph::addEdge(std::string &src_id, std::string &dest_id, int weight)
 {
-    Vertex *src = nullptr, *v = nullptr;
-    // check if start vertex is valid
-    if (!(src = static_cast<Vertex *>(this->graphTable.getPointer(start_id))))
-        return 1;
-    // DEFAULT:
-    //      all verticies in the loaded graph have an
-    //      initial distance and weight of DIST_INF and COST_INF, respectively.
-    //      Also, the previous path list is empty for each vertex.
-    // initial condition of start vertex
-    src->dist = 0;
-    this->vertexSet.insert(start_id, src->dist, src);
-    void *ppData;
-    while (!(this->vertexSet.deleteMin(nullptr, nullptr, ppData)))
-    {
-        v = *static_cast<Vertex **>(ppData);
-        // === DEBUG MESSAGE ===
-        // std::cout << "ID: " << v->id << std::endl;
-        if (v->known)
-            break;
-        v->known = true;
+    Vertex::Edge newEdge;
+    Vertex *src = this->addVertex(src_id);
+    newEdge.dest = this->addVertex(dest_id);
+    newEdge.weight = weight;
+    src->adjList.push_back(newEdge);
 
-        for (Vertex w : v->adjList)
-        {
-            Vertex *wNode = static_cast<Vertex *>(this->graphTable.getPointer(w.id));
-            if (v->dist + w.weight < wNode->dist)
-            {
-                wNode->dist = v->dist + w.weight;
-                wNode->path.push_back(v);
-                // === DEBUG MESSAGES ===
-                // w.dist = wNode->dist;
-                // std::cout << "\td_" << v->id << ": " << v->dist << " | "
-                //           << w.id << ": (w: " << w.weight << ", d: " << w.dist << ")" << std::endl;
-                this->vertexSet.insert(wNode->id, wNode->dist, wNode);
-            }
-        }
-    }
     return 0;
 }
 
@@ -92,11 +40,47 @@ void Graph::printGraph(std::string filename)
     {
         Vertex *src = static_cast<Vertex *>(this->graphTable.getPointer(id));
         outfile << src->id << ": ";
-        for (Vertex v : src->adjList)
-            outfile << " --{ " << v.weight << " }--> " << v.id;
+        for (Vertex::Edge edge : src->adjList)
+            outfile << " --{ " << edge.weight << " }--> " << edge.dest->id;
 
         outfile << " [END]" << std::endl;
     }
+}
+
+
+int Graph::Djikstra(std::string &start_id)
+{
+    bool found = false;
+    Vertex *v = nullptr;
+    // check if start vertex is valid
+    v = static_cast<Vertex *>(this->graphTable.getPointer(start_id, &found));
+    if (!found)
+        return 1;
+
+    v->dist = 0;
+    this->vertexSet.insert(start_id, v->dist, v);
+    void *ppData;
+    while (!(this->vertexSet.deleteMin(nullptr, nullptr, &ppData)))
+    {
+        v = static_cast<Vertex *>(ppData);
+        if (v->known)
+            continue;
+        v->known = true;
+
+        for (Vertex::Edge edge : v->adjList)
+        {
+            int new_dist = v->dist + edge.weight;
+            Vertex *w = edge.dest;
+            this->vertexSet.insert(w->id, w->dist, w);
+            if (!w->known && new_dist < w->dist)
+            {
+                w->dist = new_dist;
+                w->path.push_back(v);
+                this->vertexSet.setKey(w->id, new_dist);
+            }
+        }
+    }
+    return 0;
 }
 
 void Graph::printDjikstra(std::ofstream &outfile, std::string &start_id, int index)
@@ -106,23 +90,14 @@ void Graph::printDjikstra(std::ofstream &outfile, std::string &start_id, int ind
 
     std::string vId = this->vertex_ids.at(index);
     Vertex *v = static_cast<Vertex *>(this->graphTable.getPointer(vId));
-    outfile << v->id << ": ";
-    if (v->dist == 0 || (v->dist != 0 && !v->path.empty()))
+    outfile << vId << ": ";
+    outfile << v->dist << " [" << start_id;
+    for (Vertex *u : v->path)
     {
-        outfile << v->dist << " [" << start_id;
-        for (Vertex *u : v->path)
-        {
-            if (u->id == start_id)
-                continue;
-            outfile << ", ";
-            outfile << u->id;
-        }
-        if (v->id != start_id)
-            outfile << ", " << v->id << "]\n";
-        else
-            outfile << "]\n";
+        outfile << u->id;
+        outfile << ", ";
     }
-    else
-        outfile << "NO PATH\n";
+    outfile << "]\n";
     this->printDjikstra(outfile, start_id, ++index);
+    delete v;
 }

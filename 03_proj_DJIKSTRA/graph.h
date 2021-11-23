@@ -27,11 +27,15 @@ private:
     class Vertex
     {
     public:
+        struct Edge
+        {
+            int weight{COST_INF};
+            Vertex *dest{nullptr};
+        };
         std::string id{""};
-        int weight{COST_INF};
         int dist{DIST_INF};
         bool known{false};
-        std::list<Vertex> adjList;
+        std::list<Edge> adjList;
         std::list<Vertex *> path;
 
         Vertex() = default;
@@ -40,6 +44,8 @@ private:
     hashTable graphTable;
     heap vertexSet;
     std::vector<std::string> vertex_ids;
+
+    Vertex *addVertex(std::string id);
 };
 
 #endif
