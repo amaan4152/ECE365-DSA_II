@@ -17,7 +17,7 @@ unsigned int hashTable::getPrime(int size)
         if (prime > size)
             return prime;
     }
-    std::cerr << "[FATAL]: Too large of a capacity";
+    std::cerr << "[FATAL]: Too large of a capacity\n";
     abort();
 }
 

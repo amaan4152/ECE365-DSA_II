@@ -58,7 +58,7 @@ int Graph::Djikstra(std::string &start_id)
         return 1;
 
     v->dist = 0;
-    heap vertexSet = heap(this->size * 5);
+    heap vertexSet = heap(this->size * 2);
     //std::cerr << "START ID: " << start_id << "\n";
     //std::cerr << "DIST: " << v->dist << "\n";
     int ret = vertexSet.insert(start_id, v->dist, v);
