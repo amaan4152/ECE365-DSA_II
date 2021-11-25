@@ -65,7 +65,7 @@ int Graph::Djikstra(std::string &start_id)
     if (ret == 1)
         std::cerr << "=== AT MAX CAP ==="
                   << "\n";
-    vertexSet.heap_dump(1);
+    //vertexSet.heap_dump(1);
     while (!(vertexSet.deleteMin(nullptr, nullptr, &ppData)))
     {
         v = static_cast<Vertex *>(ppData);
@@ -90,8 +90,8 @@ int Graph::Djikstra(std::string &start_id)
                 vertexSet.setKey(w->id, new_dist);
                 //std::cerr << "# -------------------------------- #\n";
                 //std::cerr << "SET KEY CALLED\n";
-                std::cerr << "v: " << v->id << " | w: " << w->id << "\n";
-                vertexSet.heap_dump(1);
+                //std::cerr << "v: " << v->id << " | w: " << w->id << "\n";
+                //vertexSet.heap_dump(1);
             }
         }
         //std::cerr << "# -------------------------------- #\n";
