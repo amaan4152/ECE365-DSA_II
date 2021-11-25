@@ -68,6 +68,7 @@ public:
     //   1 if a node with the given id does not exist
     //
     int remove(const std::string &id, int *pKey = nullptr, void *ppData = nullptr);
+    void heap_dump(int index);
 
 private:
     class heapNode

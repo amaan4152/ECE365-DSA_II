@@ -36,13 +36,14 @@ private:
         int dist{DIST_INF};
         bool known{false};
         std::list<Edge> adjList;
-        std::list<Vertex *> path;
+        Vertex *prev{nullptr};
 
         Vertex() = default;
+        void printPath(std::ofstream &outfile);
     };
 
+    int size{0};
     hashTable graphTable;
-    heap vertexSet;
     std::vector<std::string> vertex_ids;
 
     Vertex *addVertex(std::string id);

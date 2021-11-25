@@ -11,17 +11,14 @@ hashTable::hashTable(int size) : capacity{(int)getPrime(size)}, filled{0}
 
 unsigned int hashTable::getPrime(int size)
 {
-    int next_prime = 0;
     std::vector<int> optimal_primes{53, 97, 193, 389, 769, 1543, 3079, 6151, 12289, 24593, 49157, 98317, 196613, 393241, 786433, 1572869, 3145739, 6291469, 12582917};
     for (int prime : optimal_primes)
     {
         if (prime > size)
-        {
-            next_prime = prime;
-            break;
-        }
+            return prime;
     }
-    return next_prime;
+    std::cerr << "[FATAL]: Too large of a capacity";
+    abort();
 }
 
 int hashTable::insert(const std::string &key, void *pv)
@@ -50,7 +47,7 @@ int hashTable::insert(const std::string &key, void *pv)
             return 2;
         }
     }
-    return 1;
+    return 0;
 }
 
 // http://www.cse.yorku.ca/~oz/hash.html
@@ -144,7 +141,6 @@ bool hashTable::remove(const std::string &key)
         return false;
 
     // lazy deletion
-    this->data[index].key = ""; // non-standard approach; not necessary
     this->data[index].isOccupied = true;
     this->data[index].isDeleted = true;
     this->data[index].pv = nullptr;

@@ -29,7 +29,11 @@ int heap::insert(const std::string &id, int key, void *pv)
     if (pv)
         node.pv = pv;
 
-    this->heapMap.insert(id, &this->bin_heap[++this->currentSize]);
+    if (this->heapMap.insert(id, &this->bin_heap[++this->currentSize]) == 2)
+    {
+        std::cerr << "[heap::insert() -> FATAL]: Memory alloc failed";
+        abort();
+    }
     this->bin_heap[0] = node;
     percolateUp(this->currentSize);
 
@@ -49,7 +53,8 @@ int heap::deleteMin(std::string *pId, int *pKey, void *ppData)
     if (ppData)
         *(static_cast<void **>(ppData)) = minItem.pv;
 
-    this->heapMap.remove(minItem.id);
+    if (!this->heapMap.remove(minItem.id))
+        std::cerr << "[deleteMin - ERROR]: Failed to remove\n";
     this->bin_heap[1] = this->bin_heap[this->currentSize--];
     this->percolateDown(1);
 
@@ -133,4 +138,15 @@ void heap::percolateDown(int hole)
 int heap::getPos(heapNode *pn)
 {
     return (pn - &this->bin_heap[0]);
+}
+
+void heap::heap_dump(int index)
+{
+    for (int i = 1; i <= this->capacity; ++i)
+    {
+        if (this->bin_heap[i].id == "")
+            continue;
+        std::cerr << i << " : " << this->bin_heap[i].id << " | " << this->bin_heap[i].key << "\n";
+    }
+    return;
 }
