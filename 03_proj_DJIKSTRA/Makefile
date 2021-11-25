@@ -1,7 +1,7 @@
 CXX = g++
-CXXFLAGS = -fsanitize=address -Wextra -Wpedantic -Wall
+CXXFLAGS = -fsanitize=address -Wextra -Wpedantic
 all: main.o graph.o heap.o hash.o
-	$(CXX) -o *.o $(CXXFLAGS)
+	$(CXX) -o dijkstra *.o $(CXXFLAGS)
 
 main.o: main.cpp graph.h
 	$(CXX) -std=c++11 -c main.cpp $(CXXFLAGS)
@@ -22,4 +22,4 @@ debug: main.o graph.o heap.o hash.o
 	$(CXX) -o DEBUG_djikstra *cpp $(CXXFLAGS)
 
 clean: 
-	rm -f *.o *.gch DEBUG_djikstra
+	rm -f *.o *.gch DEBUG_djikstra dijkstra
