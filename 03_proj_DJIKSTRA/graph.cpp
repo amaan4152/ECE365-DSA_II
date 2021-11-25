@@ -82,7 +82,7 @@ int Graph::Djikstra(std::string &start_id)
                           << "\n";
             //std::cerr << "# -------------------------------- #\n";
             //std::cerr << "v: " << v->id << " | w: " << w->id << "\n";
-            vertexSet.heap_dump(1);
+            //vertexSet.heap_dump(1);
             if (new_dist < w->dist)
             {
                 w->dist = new_dist;
@@ -96,7 +96,7 @@ int Graph::Djikstra(std::string &start_id)
         }
         //std::cerr << "# -------------------------------- #\n";
         //std::cerr << "v: " << v->id << "\n";
-        vertexSet.heap_dump(1);
+        //vertexSet.heap_dump(1);
     }
     return 0;
 }
