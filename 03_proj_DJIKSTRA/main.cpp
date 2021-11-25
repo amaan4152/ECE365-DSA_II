@@ -16,6 +16,7 @@ int main(void)
     std::string filename = "";
     std::string outname = "";
     std::string startID = "";
+    std::clock_t start = 0, end = 0;
 
     std::cerr << "Enter name of graph file: ";
     std::cin >> filename;
@@ -23,21 +24,22 @@ int main(void)
     Graph *G = loadGraph(contents);
 
     // === PRINT GRAPH ADJACENCY LISTS TO FILE ===
-    G->printGraph("graph_adjLists.txt");
-    std::clock_t start = std::clock();
-    while (G->Djikstra(startID))
+    // G->printGraph("graph_adjLists.txt");
+    // Perform Dij
+    while (G->Dijkstra(startID))
     {
         std::cerr << "Enter name of starting vertex: ";
         std::cin >> startID;
+        start = std::clock();
     }
-    std::clock_t end = std::clock();
+    end = std::clock();
     float time = (end - start) / ((float)CLOCKS_PER_SEC);
     std::cerr << "Total time (in seconds) to apply Dijkstra's algorithm: " << time << "\n";
 
     std::cerr << "Enter name of output file: ";
     std::cin >> outname;
     std::ofstream outfile(outname);
-    G->printDjikstra(outfile, startID, 0);
+    G->printDijkstra(outfile, startID, 0);
     delete G;
     return 0;
 }

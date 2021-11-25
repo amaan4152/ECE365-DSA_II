@@ -1,5 +1,5 @@
 CXX = g++
-CXXFLAGS = -fsanitize=address -Wextra -Wpedantic
+CXXFLAGS = -fsanitize=address -Wextra -Wpedantic -O3
 all: main.o graph.o heap.o hash.o
 	$(CXX) -o dijkstra *.o $(CXXFLAGS)
 

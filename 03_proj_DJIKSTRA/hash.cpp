@@ -11,7 +11,8 @@ hashTable::hashTable(int size) : capacity{(int)getPrime(size)}, filled{0}
 
 unsigned int hashTable::getPrime(int size)
 {
-    std::vector<int> optimal_primes{53, 97, 193, 389, 769, 1543, 3079, 6151, 12289, 24593, 49157, 98317, 196613, 393241, 786433, 1572869, 3145739, 6291469, 12582917};
+    std::vector<int> optimal_primes{53, 97, 193, 389, 769, 1543, 3079, 6151, 12289, 24593, 49157, 98317, 196613, 393241, 786433, 1572869, 3145739, 6291469, 12582917, 15485863,
+        32452867, 49979693, 67867979, 100663319, 201326611, 402653189, 805306457, 1610612741};
     for (int prime : optimal_primes)
     {
         if (prime > size)
