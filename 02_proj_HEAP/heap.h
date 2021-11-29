@@ -68,6 +68,7 @@ public:
     //   1 if a node with the given id does not exist
     //
     int remove(const std::string &id, int *pKey = nullptr, void *ppData = nullptr);
+    void heap_dump(int index);
 
 private:
     class heapNode
@@ -79,9 +80,9 @@ private:
 
         heapNode() = default;
     };
-    
-    std::vector<heapNode> bin_heap; 
-    hashTable heapMap; 
+
+    std::vector<heapNode> bin_heap;
+    hashTable heapMap;
     int capacity;
     int currentSize;
 

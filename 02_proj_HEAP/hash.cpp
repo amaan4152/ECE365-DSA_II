@@ -11,22 +11,19 @@ hashTable::hashTable(int size) : capacity{(int)getPrime(size)}, filled{0}
 
 unsigned int hashTable::getPrime(int size)
 {
-    int next_prime = 0;
-    std::vector<int> optimal_primes{53, 97, 193, 389, 769, 1543, 3079, 6151, 12289, 24593, 49157, 98317, 196613, 393241, 786433, 1572869, 3145739, 6291469, 12582917};
+    std::vector<int> optimal_primes{53, 97, 193, 389, 769, 1543, 3079, 6151, 12289, 24593, 49157, 98317, 196613, 393241, 786433, 1572869, 3145739, 6291469, 12582917, 15485863,
+        32452867, 49979693, 67867979, 100663319, 201326611, 402653189, 805306457, 1610612741};
     for (int prime : optimal_primes)
     {
         if (prime > size)
-        {
-            next_prime = prime;
-            break;
-        }
+            return prime;
     }
-    return next_prime;
+    std::cerr << "[FATAL]: Too large of a capacity\n";
+    abort();
 }
 
 int hashTable::insert(const std::string &key, void *pv)
 {
-    double load_factor;
     if (this->contains(key))
         return 1; // key exists in hash table
     int index = this->hash(key);
@@ -43,7 +40,7 @@ int hashTable::insert(const std::string &key, void *pv)
     this->data[index].pv = pv;
 
     // rehash once load factor reached limit or greater
-    if ((load_factor = filled / capacity) >= LOAD_LIMIT)
+    if ((filled / capacity) >= LOAD_LIMIT)
     {
         if (!this->rehash())
         {
@@ -51,7 +48,7 @@ int hashTable::insert(const std::string &key, void *pv)
             return 2;
         }
     }
-    return 1;
+    return 0;
 }
 
 // http://www.cse.yorku.ca/~oz/hash.html
@@ -76,7 +73,7 @@ bool hashTable::rehash()
         // fill up the new table
         for (hashItem entry : old_table)
         {
-            if (entry.isOccupied == false)
+            if (entry.isOccupied == false || entry.isDeleted == true)
                 continue;
             this->insert(entry.key, entry.pv);
         }
@@ -102,9 +99,9 @@ bool hashTable::contains(const std::string &key)
 int hashTable::findPos(const std::string &key)
 {
     unsigned int index = this->hash(key);
-    while (this->data[index].isOccupied && !this->data[index].isDeleted)
+    while (this->data[index].isOccupied)
     {
-        if (this->data[index].key == key)
+        if (this->data[index].key == key && !this->data[index].isDeleted)
             return index;
         (++index) %= this->capacity;
     }
@@ -145,7 +142,6 @@ bool hashTable::remove(const std::string &key)
         return false;
 
     // lazy deletion
-    this->data[index].key = "";
     this->data[index].isOccupied = true;
     this->data[index].isDeleted = true;
     this->data[index].pv = nullptr;
