@@ -1,5 +1,5 @@
 CXX = g++
-CXXFLAGS = -fsanitize=address -Wextra -Wpedantic -O3
+CXXFLAGS = -g -Wextra -Wpedantic -O3
 
 all: main.o 
 	$(CXX) -o merge *.o $(CXXFLAGS)
@@ -7,11 +7,8 @@ all: main.o
 main.o: main.cpp
 	$(CXX) -std=c++11 -c main.cpp $(CXXFLAGS)
 
-graph: 
-	python3 makeGraph.py
-
 debug: main.o 
-	$(CXX) -o DEBUG_merge *.cpp $(CXXFLAGS)
+	$(CXX) -o DEBUG_merge main.cpp $(CXXFLAGS)
 
 clean: 
 	rm -f *.o *.gch DEBUG_merge merge
