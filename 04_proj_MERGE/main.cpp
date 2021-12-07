@@ -63,24 +63,24 @@ void merge(const std::string &A, const std::string &B, const std::string &C)
     /* Check if merge valid */
     for (long unsigned int i = 0; i <= M; ++i){
         for (long unsigned int j = 0; j <= N; ++j){
-            if (i == 0 && j == 0)   
-                isMerged[i][j] = true;
+            char a = A[i - 1], b = B[j - 1], c = C[i + j -1];
+            bool a_c = a == c, b_c = b == c;
 
-            else if (i == 0){
-                if (B[j - 1] == C[j - 1])
-                    isMerged[i][j] = isMerged[i][j - 1];
+            if (!i && !j)   
+                isMerged[i][j] = true;
+            else if (!i && b == C[j - 1]){
+                isMerged[i][j] = isMerged[i][j - 1];
             }
-            else if (j == 0){
-                if (A[i - 1] == C[i - 1])
-                    isMerged[i][j] = isMerged[i - 1][j];
+            else if (!j && a == C[i - 1]){
+                isMerged[i][j] = isMerged[i - 1][j];
             }
-            else if (A[i - 1] == C[i + j - 1] && B[j - 1] != C[i + j - 1])
+            else if (a_c && !b_c)
                 isMerged[i][j] = isMerged[i - 1][j];
 
-            else if (A[i - 1] != C[i + j - 1] && B[j - 1] == C[i + j - 1])
+            else if (!a_c && b_c)
                 isMerged[i][j] = isMerged[i][j - 1];
 
-            else if (A[i - 1] == C[i + j - 1] && B[j - 1] == C[i + j - 1])
+            else if (a_c && b_c)
                 isMerged[i][j] = (isMerged[i - 1][j] || isMerged[i][j - 1]);
         }
     }
@@ -91,7 +91,7 @@ std::string highlight(const std::string &A, const std::string &B, std::string C)
     int i = A.size(), j = B.size();
     if (!isMerged[i][j])
         return "*** NOT A MERGE ***";
-        
+
     while(i > 0){
         if(isMerged[i][j] && (j == 0 || !isMerged[i][j-1])){
             C[i + j - 1] = toupper(C[i + j - 1]);
